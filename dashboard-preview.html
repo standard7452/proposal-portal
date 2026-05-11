@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Polity — Executive IT Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #f0eee9;
+    color: #1a1a1a;
+  }
+  .topbar {
+    background: #1a232e;
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .topbar .brand .badge {
+    font-size: 11px;
+    background: #C8934A;
+    color: #1a232e;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .topbar .client-info {
+    text-align: right;
+    font-size: 13px;
+    color: #aab;
+  }
+  .topbar .client-info strong {
+    color: white;
+  }
+  .dashboard {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 56px);
+  }
+  .sidebar {
+    background: #1f2a36;
+    color: #ccd;
+    padding: 20px 0;
+  }
+  .sidebar .section {
+    padding: 8px 20px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #667;
+    margin-top: 12px;
+  }
+  .sidebar .nav-item {
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar .nav-item:hover {
+    background: rgba(255,255,255,0.05);
+  }
+  .sidebar .nav-item.active {
+    background: rgba(74,123,196,0.15);
+    border-left-color: #4A7BC4;
+    color: white;
+  }
+  .sidebar .nav-item .count {
+    margin-left: auto;
+    background: #2a3848;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    color: #99a;
+  }
+  .main {
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .main h1 {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .main .subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .main .preview-banner {
+    background: linear-gradient(135deg, #4A7BC4, #2c5282);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .main .preview-banner strong {
+    font-size: 15px;
+  }
+  .main .preview-banner .btn {
+    margin-left: auto;
+    background: white;
+    color: #2c5282;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .main .preview-banner .btn:hover { opacity: 0.9; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .stat-card .value.green { color: #188038; }
+  .stat-card .value.amber { color: #b0600a; }
+  .stat-card .value.blue { color: #4A7BC4; }
+  .stat-card .sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 28px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-wrap {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+  .table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .table-wrap th {
+    text-align: left;
+    padding: 12px 16px;
+    background: #faf9f7;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .table-wrap td {
+    padding: 10px 16px;
+    border-top: 1px solid #f0eee9;
+  }
+  .table-wrap tr:hover td {
+    background: #faf9f7;
+  }
+  .table-wrap .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .table-wrap .status-dot.green { background: #188038; }
+  .table-wrap .status-dot.amber { background: #b0600a; }
+  .table-wrap .status-dot.red { background: #d32f2f; }
+
+  .network-map {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+  .network-map .map-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .network-map .node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid #e0ddd8;
+    min-width: 100px;
+    position: relative;
+  }
+  .network-map .node .icon { font-size: 24px; }
+  .network-map .node .name { font-size: 12px; font-weight: 600; }
+  .network-map .node .ips { font-size: 10px; color: #999; }
+  .network-map .node .connector {
+    position: absolute;
+    width: 2px;
+    height: 20px;
+    background: #ddd;
+    bottom: -20px;
+  }
+  .network-map .node.internet { background: #e8f0fe; border-color: #4A7BC4; }
+  .network-map .node.firewall { background: #fce8e6; border-color: #d32f2f; }
+  .network-map .node.switch { background: #fef7e0; border-color: #b0600a; }
+  .network-map .node.server { background: #e6f4ea; border-color: #188038; }
+  .network-map .node.workstation { background: #f5f5f5; border-color: #ccc; }
+
+  .alert-bar {
+    background: #fef7e0;
+    border: 1px solid #f0d78a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #5c4300;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert-bar.green {
+    background: #e6f4ea;
+    border-color: #a8dab5;
+    color: #1e6a33;
+  }
+
+  .footer-demo {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-size: 12px;
+  }
+  .footer-demo strong { color: #666; }
+
+  @media (max-width: 768px) {
+    .dashboard { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span>📊 Best Polity</span>
+    <span class="badge">Executive Dashboard</span>
+  </div>
+  <div class="client-info">
+    Client: <strong>Hamburg Door Operations</strong><br>
+    <span style="font-size:11px;">Managed by Best Polity LLC · Last updated: May 11, 2026</span>
+  </div>
+</div>
+
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="section">Overview</div>
+    <div class="nav-item active">📋 Dashboard</div>
+    <div class="nav-item">💻 Assets</div>
+    <div class="nav-item">🌐 Network</div>
+    <div class="nav-item">📄 Subscriptions</div>
+    <div class="nav-item">🔐 Security</div>
+    <div class="nav-item">📅 Activity Log</div>
+    <div class="section">Management</div>
+    <div class="nav-item">🛠️ Maintenance</div>
+    <div class="nav-item">👥 Users <span class="count">8</span></div>
+    <div class="nav-item">📎 Documents</div>
+    <div class="section">Reports</div>
+    <div class="nav-item">📊 Monthly Summary</div>
+    <div class="nav-item">💰 Cost Analysis</div>
+  </div>
+
+  <div class="main">
+    <div class="preview-banner">
+      <span>👋 <strong>This is a live preview</strong> of your Executive IT Dashboard — this is what you'll have access to upon agreement.</span>
+      <a href="https://standard7452.github.io/proposal-portal/" class="btn">← Back to Proposal</a>
+    </div>
+
+    <h1>Infrastructure Overview</h1>
+    <div class="subtitle">Managed by Best Polity LLC — real-time visibility into your entire technology stack</div>
+
+    <!-- Stats -->
+    <div class="cards">
+      <div class="stat-card">
+        <div class="label">Managed Assets</div>
+        <div class="value blue">34</div>
+        <div class="sub">Hardware + software tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Network Nodes</div>
+        <div class="value green">12</div>
+        <div class="sub">All online</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Subscriptions</div>
+        <div class="value amber">7</div>
+        <div class="sub">$2,845/mo total</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Open Issues</div>
+        <div class="value">2</div>
+        <div class="sub">1 critical · 1 advisory</div>
+      </div>
+    </div>
+
+    <!-- Workstations & Loadouts -->
+    <div class="section-title">💻 Computer Loadouts</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>User</th><th>Device</th><th>Specs</th><th>Age</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Jennifer Kuhn</td><td>Dell Precision 3660</td><td>i7-13700 / 32GB / 512GB</td><td>1 yr</td><td><span class="status-dot green"></span> Healthy</td></tr>
+          <tr><td>Sales Team (3)</td><td>Dell Latitude 5540</td><td>i5-13500 / 16GB / 256GB</td><td>2 yrs</td><td><span class="status-dot green"></span> Healthy</td></tr>
+          <tr><td>Shop Floor Terminal</td><td>HP EliteDesk 800</td><td>i5-12500 / 16GB / 256GB</td><td>3 yrs</td><td><span class="status-dot amber"></span> Storage 78%</td></tr>
+          <tr><td>Reception</td><td>Dell OptiPlex 7080</td><td>i5-10500 / 8GB / 256GB</td><td>4 yrs</td><td><span class="status-dot amber"></span> Low memory</td></tr>
+          <tr><td>Warehouse Kiosk</td><td>Lenovo ThinkCentre</td><td>i3-10100 / 8GB / 128GB</td><td>4 yrs</td><td><span class="status-dot green"></span> Healthy</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Network Map -->
+    <div class="section-title">🌐 Network Topology</div>
+    <div class="network-map">
+      <div class="map-grid" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <!-- Row 1: Internet -->
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+          <div class="node internet"><div class="icon">🌍</div><div class="name">Internet</div></div>
+        </div>
+        <div style="font-size:20px;color:#ccc;">↓ ↑</div>
+        <!-- Row 2: Firewall -->
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+          <div class="node firewall"><div class="icon">🛡️</div><div class="name">SonicWall TZ670</div><div class="ips">192.168.1.1</div></div>
+        </div>
+        <div style="font-size:16px;color:#ccc;">│</div>
+        <!-- Row 3: Core Switch -->
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+          <div class="node switch"><div class="icon">🔀</div><div class="name">Netgear M4250</div><div class="ips">192.168.1.2</div></div>
+        </div>
+        <div style="display:flex;gap:40px;font-size:16px;color:#ccc;">
+          <span>│</span><span>│</span><span>│</span>
+        </div>
+        <!-- Row 4: Servers + Access Points -->
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+          <div class="node server"><div class="icon">🖥️</div><div class="name">File Server</div><div class="ips">192.168.1.10</div></div>
+          <div class="node server"><div class="icon">🗄️</div><div class="name">SQL Server</div><div class="ips">192.168.1.15</div></div>
+          <div class="node server"><div class="icon">☁️</div><div class="name">NAS Backup</div><div class="ips">192.168.1.20</div></div>
+          <div class="node server"><div class="icon">📡</div><div class="name">WiFi AP (3x)</div><div class="ips">UniFi U6 Pro</div></div>
+        </div>
+        <div style="display:flex;gap:40px;font-size:16px;color:#ccc;">
+          <span>│</span><span>│</span><span>│</span><span>│</span>
+        </div>
+        <!-- Row 5: Workstations -->
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+          <div class="node workstation"><div class="icon">🖥️</div><div class="name">Office (5)</div><div class="ips">VLAN 10</div></div>
+          <div class="node workstation"><div class="icon">🏭</div><div class="name">Shop Floor (3)</div><div class="ips">VLAN 20</div></div>
+          <div class="node workstation"><div class="icon">📦</div><div class="name">Warehouse (2)</div><div class="ips">VLAN 30</div></div>
+          <div class="node workstation"><div class="icon">📱</div><div class="name">Printers (2)</div><div class="ips">VLAN 40</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscriptions -->
+    <div class="section-title">📄 Subscription Fees</div>
+    <div class="alert-bar green">
+      ✅ All subscriptions managed and tracked — no surprise renewals
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Service</th><th>Vendor</th><th>Billing</th><th>Cost/mo</th><th>Expires</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Microsoft 365 Business</td><td>Microsoft</td><td>Annual</td><td>$1,400</td><td>Jan 2027</td><td><span class="status-dot green"></span> Active</td></tr>
+          <tr><td>QuickBooks Online</td><td>Intuit</td><td>Monthly</td><td>$180</td><td>—</td><td><span class="status-dot green"></span> Active</td></tr>
+          <tr><td>Web Hosting + Email</td><td>GoDaddy</td><td>Annual</td><td>$120</td><td>Aug 2026</td><td><span class="status-dot green"></span> Active</td></tr>
+          <tr><td>DoorCAD Pro Licenses</td><td>DoorCAD</td><td>Annual</td><td>$375</td><td>Dec 2026</td><td><span class="status-dot green"></span> Active</td></tr>
+          <tr><td>Backup Vault (Cloud)</td><td>Backblaze</td><td>Monthly</td><td>$65</td><td>—</td><td><span class="status-dot green"></span> Active</td></tr>
+          <tr><td>Antivirus (Bitdefender)</td><td>Bitdefender</td><td>Annual</td><td>$480</td><td>Sep 2026</td><td><span class="status-dot green"></span> Active</td></tr>
+          <tr><td>Domain Registrations (3)</td><td>Various</td><td>Annual</td><td>$45</td><td>Various</td><td><span class="status-dot amber"></span> Expiring Jul 2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="section-title">📋 Recent Activity</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Action</th><th>System</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Today</td><td>Security audit — firewall rules reviewed</td><td>SonicWall</td><td><span class="status-dot green"></span> Complete</td></tr>
+          <tr><td>Yesterday</td><td>Quarterly backup verification</td><td>NAS</td><td><span class="status-dot green"></span> Verified</td></tr>
+          <tr><td>2 days ago</td><td>Windows updates applied (office machines)</td><td>Dell fleet</td><td><span class="status-dot green"></span> Up to date</td></tr>
+          <tr><td>5 days ago</td><td>Subscription renewal review</td><td>All</td><td><span class="status-dot green"></span> Reviewed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert-bar">
+      💡 <strong>Next recommended action:</strong> Upgrade reception workstation (8GB RAM → 16GB) and transition shop floor terminal to SSD. Estimated cost: $180.
+    </div>
+
+    <div class="footer-demo">
+      <strong>This is a preview.</strong> Actual dashboard will populate with your real data upon engagement. <br>
+      All records are maintained in real-time and accessible to you 24/7.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
