@@ -303,6 +303,8 @@
     max-width: 500px;
     height: 150px;
     touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   .signature-section .sig-pad-wrap .sig-actions {
     display: flex;
@@ -483,6 +485,17 @@
       </div>
     </div>
 
+    <!-- CAPTCHA -->
+    <div class="captcha-wrap" style="margin-top:20px;">
+      <label style="display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:8px;">Verification</label>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span id="captchaQuestion" style="font-size:18px;font-weight:700;color:#333;background:#e8e5e0;padding:8px 16px;border-radius:8px;min-width:80px;text-align:center;"></span>
+        <input type="text" id="captchaInput" placeholder="Answer" style="padding:10px 14px;border:2px solid #ddd;border-radius:8px;font-size:15px;outline:none;width:100px;" autocomplete="off">
+        <button onclick="newCaptcha()" style="padding:6px 12px;border:1px solid #d0cdc8;border-radius:6px;background:white;font-size:12px;cursor:pointer;">↻ New</button>
+      </div>
+      <div id="captchaError" style="color:#d32f2f;font-size:12px;margin-top:6px;display:none;">Incorrect answer. Try again.</div>
+    </div>
+
     <div class="sig-submit">
       <button onclick="acceptProposal()">Accept & Sign</button>
       <span class="accepted-msg" id="acceptedMsg">✓ Accepted</span>
@@ -509,6 +522,10 @@
 
   document.getElementById('passwordInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') unlock();
+  });
+
+  document.getElementById('captchaInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') acceptProposal();
   });
 
   // ── Signature Pad ──
@@ -570,10 +587,35 @@
     hasSigned = false;
   }
 
+  // ── Captcha ──
+  let captchaAnswer = 0;
+
+  function newCaptcha() {
+    const a = Math.floor(Math.random() * 20) + 1;
+    const b = Math.floor(Math.random() * 15) + 1;
+    const ops = ['+', '×'];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    captchaAnswer = op === '+' ? a + b : a * b;
+    document.getElementById('captchaQuestion').textContent = a + ' ' + op + ' ' + b + ' =';
+    document.getElementById('captchaInput').value = '';
+    document.getElementById('captchaError').style.display = 'none';
+  }
+
+  // Generate first captcha on load
+  setTimeout(newCaptcha, 100);
+
   // ── Accept ──
   function acceptProposal() {
     const name = document.getElementById('sigName').value.trim();
     const title = document.getElementById('sigTitle').value.trim();
+    const captchaVal = document.getElementById('captchaInput').value.trim();
+
+    // Validate captcha
+    if (parseInt(captchaVal) !== captchaAnswer) {
+      document.getElementById('captchaError').style.display = 'block';
+      return;
+    }
+    document.getElementById('captchaError').style.display = 'none';
 
     if (!name) {
       alert('Please enter your full name.');
